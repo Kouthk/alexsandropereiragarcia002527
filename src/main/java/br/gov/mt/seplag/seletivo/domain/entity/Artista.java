@@ -1,5 +1,6 @@
 package br.gov.mt.seplag.seletivo.domain.entity;
 
+import br.gov.mt.seplag.seletivo.domain.enums.TipoArtistaEnum;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,8 +25,10 @@ public class Artista {
     @Column(nullable = false)
     private String nome;
 
-    @Column(nullable = false)
-    private String tipo; //Banda | Solo
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private TipoArtistaEnum tipo;
+
 
     @Column(nullable = false)
     private Boolean ativo = true;
