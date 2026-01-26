@@ -33,7 +33,7 @@ public class Album {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @ManyToMany(mappedBy = "albuns")
+    @ManyToMany(mappedBy = "albuns", fetch = FetchType.LAZY)
     private Set<Artista> artistas;
 
     @OneToMany(
@@ -43,5 +43,7 @@ public class Album {
     )
     private Set<AlbumCapa> capas;
 
+    @Column(nullable = false)
+    private Boolean ativo = true;
 
 }
