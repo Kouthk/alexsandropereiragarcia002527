@@ -36,5 +36,12 @@ public class Album {
     @ManyToMany(mappedBy = "albuns")
     private Set<Artista> artistas;
 
+    @OneToMany(
+            mappedBy = "album",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private Set<AlbumCapa> capas;
+
 
 }
