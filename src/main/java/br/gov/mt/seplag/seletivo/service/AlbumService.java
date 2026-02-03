@@ -28,17 +28,20 @@ public class AlbumService implements LayerDefinition {
     private final ArtistaRepository artistaRepository;
     private final AlbumCapaService albumCapaService;
     private final MinioStorageService minioStorageService;
+    private final AlbumNotificationService albumNotificationService;
 
     public AlbumService(
             AlbumRepository albumRepository,
             ArtistaRepository artistaRepository,
             AlbumCapaService albumCapaService,
-            MinioStorageService minioStorageService
+            MinioStorageService minioStorageService,
+            AlbumNotificationService albumNotificationService
     ) {
         this.albumRepository = albumRepository;
         this.artistaRepository = artistaRepository;
         this.albumCapaService = albumCapaService;
         this.minioStorageService = minioStorageService;
+        this.albumNotificationService = albumNotificationService;
     }
 
     /**
@@ -63,6 +66,7 @@ public class AlbumService implements LayerDefinition {
                 );
             }
         }
+        albumNotificationService.notifyAlbumCreated(salvo);
         return salvo;
     }
 
@@ -100,7 +104,7 @@ public class AlbumService implements LayerDefinition {
                 );
             }
         }
-
+        albumNotificationService.notifyAlbumCreated(salvo);
         return salvo;
     }
 
