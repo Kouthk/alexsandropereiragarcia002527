@@ -3,6 +3,7 @@ package br.gov.mt.seplag.seletivo.service;
 import br.gov.mt.seplag.seletivo.domain.entity.Artista;
 import br.gov.mt.seplag.seletivo.domain.enums.TipoArtistaEnum;
 import br.gov.mt.seplag.seletivo.domain.repository.ArtistaRepository;
+import br.gov.mt.seplag.seletivo.exception.BusinessException;
 import br.gov.mt.seplag.seletivo.exception.LayerDefinition;
 import br.gov.mt.seplag.seletivo.exception.ResourceNotFoundException;
 import br.gov.mt.seplag.seletivo.exception.enums.LayerEnum;
@@ -35,13 +36,12 @@ public class ArtistaService implements LayerDefinition {
     }
 
     @Transactional
-    public Artista atualizar(Long id, Artista atualizado) {
-        validarArtista(atualizado);
-
+    public Artista atualizar(Long id, Artista artistaUpdate) {
+        validarArtista(artistaUpdate);
         Artista existente = buscarPorId(id);
 
-        existente.setNome(atualizado.getNome());
-        existente.setTipo(atualizado.getTipo());
+        existente.setNome(artistaUpdate.getNome());
+        existente.setTipo(artistaUpdate.getTipo());
         existente.setUpdatedAt(LocalDateTime.now());
 
         return repository.save(existente);
@@ -86,12 +86,16 @@ public class ArtistaService implements LayerDefinition {
     }
 
     private void validarArtista(Artista artista) {
+        if (artista == null) {
+            throw new BusinessException("Artista é obrigatório", this);
+        }
+
         if (artista.getNome() == null || artista.getNome().isBlank()) {
-            throw new IllegalArgumentException("Nome do artista é obrigatório");
+            throw new BusinessException("Nome do artista é obrigatório", this);
         }
 
         if (artista.getTipo() == null) {
-            throw new IllegalArgumentException("Tipo do artista é obrigatório");
+            throw new BusinessException("Tipo do artista é obrigatório", this);
         }
     }
 

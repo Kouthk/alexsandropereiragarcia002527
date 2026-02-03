@@ -12,10 +12,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1/albuns")
@@ -58,7 +61,23 @@ public class AlbumController {
         album.setTitulo(request.titulo());
         album.setAnoLancamento(request.anoLancamento());
 
-        Album criado = albumService.criar(album, request.artistasIds());
+        Album criado = albumService.criar(album, request.artistasIds(), request.capas());
+        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(criado));
+    }
+
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.MULTIPART_FORM_DATA_VALUE )
+    public ResponseEntity<AlbumResponseDTO> criarComCapas(
+            @RequestParam String titulo,
+            @RequestParam(required = false) Integer anoLancamento,
+            @RequestParam Set<Long> artistasIds,
+            @RequestParam(name = "files", required = false) List<MultipartFile> files,
+            @RequestParam(defaultValue = "false") boolean principal
+    ) {
+        Album album = new Album();
+        album.setTitulo(titulo);
+        album.setAnoLancamento(anoLancamento);
+
+        Album criado = albumService.criarComCapas(album, artistasIds, files, principal);
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(criado));
     }
 
