@@ -95,7 +95,7 @@ public class ArtistaService implements LayerDefinition {
         }
 
         if (artista.getTipo() == null) {
-            throw new BusinessException("Tipo do artista é obrigatório", this);
+            throw new BusinessException("Tipo do artista é obrigatório (BANDA ou SOLO)", this);
         }
     }
 

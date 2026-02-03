@@ -53,7 +53,7 @@ public class AlbumController {
         return ResponseEntity.ok(mapPage(albuns));
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE )
     public ResponseEntity<AlbumResponseDTO> criar(
             @Valid @RequestBody AlbumRequestDTO request
     ) {
@@ -65,7 +65,7 @@ public class AlbumController {
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(criado));
     }
 
-    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.MULTIPART_FORM_DATA_VALUE )
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE )
     public ResponseEntity<AlbumResponseDTO> criarComCapas(
             @RequestParam String titulo,
             @RequestParam(required = false) Integer anoLancamento,
