@@ -1,4 +1,8 @@
 spring:
+  servlet:
+    multipart:
+      max-file-size: ${MAX_FILE_SIZE:3MB}
+      max-request-size: ${MAX_REQUEST_SIZE:30MB}
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/seletivoSeplag}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -48,6 +49,16 @@ public class MinioStorageService implements LayerDefinition {
         } catch (Exception ex) {
             throw new StorageException("Erro ao enviar capa para o MinIO", this);
         }
+    }
+
+    public List<String> uploadAlbumCapas(List<MultipartFile> files) {
+        if (files == null || files.isEmpty()) {
+            throw new StorageException("Arquivos de capa são obrigatórios", this);
+        }
+
+        return files.stream()
+                .map(file -> uploadAlbumCapa(file))
+                .toList();
     }
 
     public String gerarUrlPresignada(String objectKey) {
@@ -97,9 +108,8 @@ public class MinioStorageService implements LayerDefinition {
 
     private String gerarObjectKey(String originalFilename) {
         String safeName = Objects.requireNonNullElse(originalFilename, "capa")
-                .replaceAll("\\s+", "_");
-        return "albuns/" + UUID.randomUUID() + "-" + safeName;
-    }
+                .replaceAll("[^a-zA-Z0-9._-]", "_");
+        return "albuns/" + UUID.randomUUID() + "-" + safeName;    }
 
     @Override
     public String getClassName() {
