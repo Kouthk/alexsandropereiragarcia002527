@@ -2,6 +2,7 @@ package br.gov.mt.seplag.seletivo.controller;
 
 import br.gov.mt.seplag.seletivo.domain.entity.Album;
 import br.gov.mt.seplag.seletivo.domain.entity.Artista;
+import br.gov.mt.seplag.seletivo.domain.enums.TipoArtistaEnum;
 import br.gov.mt.seplag.seletivo.dto.AlbumCapaResponseDTO;
 import br.gov.mt.seplag.seletivo.dto.AlbumRequestDTO;
 import br.gov.mt.seplag.seletivo.dto.AlbumResponseDTO;
@@ -93,6 +94,22 @@ public class AlbumController {
             @ParameterObject Pageable pageable
     ) {
         Page<Album> albuns = albumService.listarPorNomeArtista(nome, pageable);
+        return ResponseEntity.ok(mapPage(albuns));
+    }
+
+    @Operation(summary = "Listar álbuns por tipo de artista",
+            description = "Lista álbuns associados a artistas do tipo informado (BANDA ou SOLO).")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Lista paginada de álbuns",
+                    content = @Content(schema = @Schema(implementation = AlbumResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Nenhum álbum encontrado para o tipo informado")
+    })
+    @GetMapping("/por-tipo")
+    public ResponseEntity<Page<AlbumResponseDTO>> listarPorTipoArtista(
+            @RequestParam TipoArtistaEnum tipo,
+            @ParameterObject Pageable pageable
+    ) {
+        Page<Album> albuns = albumService.listarPorTipoArtista(tipo, pageable);
         return ResponseEntity.ok(mapPage(albuns));
     }
 

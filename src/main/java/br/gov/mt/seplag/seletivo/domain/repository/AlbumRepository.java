@@ -1,6 +1,7 @@
 package br.gov.mt.seplag.seletivo.domain.repository;
 
 import br.gov.mt.seplag.seletivo.domain.entity.Album;
+import br.gov.mt.seplag.seletivo.domain.enums.TipoArtistaEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,6 +22,9 @@ public interface AlbumRepository extends JpaRepository<Album, Long> {
 
     @EntityGraph(attributePaths = {"artistas", "capas"})
     Page<Album> findByArtistasNomeContainingIgnoreCaseAndAtivoTrue(String nome, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"artistas", "capas"})
+    Page<Album> findByArtistasTipoAndAtivoTrue(TipoArtistaEnum tipo, Pageable pageable);
 
     @EntityGraph(attributePaths = {"artistas", "capas"})
     Optional<Album> findByIdAndAtivoTrue(Long id);

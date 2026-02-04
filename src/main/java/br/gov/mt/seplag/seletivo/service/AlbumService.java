@@ -2,6 +2,7 @@ package br.gov.mt.seplag.seletivo.service;
 
 import br.gov.mt.seplag.seletivo.domain.entity.Album;
 import br.gov.mt.seplag.seletivo.domain.entity.Artista;
+import br.gov.mt.seplag.seletivo.domain.enums.TipoArtistaEnum;
 import br.gov.mt.seplag.seletivo.domain.repository.AlbumRepository;
 import br.gov.mt.seplag.seletivo.domain.repository.ArtistaRepository;
 import br.gov.mt.seplag.seletivo.dto.AlbumCapaRequestDTO;
@@ -147,6 +148,19 @@ public class AlbumService implements LayerDefinition {
             return albumRepository.findByAtivoTrue(pageable);
         }
         Page<Album> resultado = albumRepository.findByArtistasNomeContainingIgnoreCaseAndAtivoTrue(nome, pageable);
+        validarResultadoArtista(resultado);
+        return resultado;
+    }
+
+    /**
+     * Lista álbuns por tipo de artista (BANDA ou SOLO).
+     */
+    @Transactional(readOnly = true)
+    public Page<Album> listarPorTipoArtista(TipoArtistaEnum tipo, Pageable pageable) {
+        if (tipo == null) {
+            return albumRepository.findByAtivoTrue(pageable);
+        }
+        Page<Album> resultado = albumRepository.findByArtistasTipoAndAtivoTrue(tipo, pageable);
         validarResultadoArtista(resultado);
         return resultado;
     }
