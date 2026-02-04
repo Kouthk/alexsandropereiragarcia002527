@@ -17,6 +17,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class MinioStorageService implements LayerDefinition {
@@ -68,7 +69,7 @@ public class MinioStorageService implements LayerDefinition {
                             .bucket(properties.getBucket())
                             .object(objectKey)
                             .method(Method.GET)
-                            .expiry((int) PRESIGNED_TTL.toSeconds())
+                            .expiry(30, TimeUnit.MINUTES)
                             .build()
             );
         } catch (Exception ex) {
