@@ -7,6 +7,14 @@ import br.gov.mt.seplag.seletivo.dto.AlbumRequestDTO;
 import br.gov.mt.seplag.seletivo.dto.AlbumResponseDTO;
 import br.gov.mt.seplag.seletivo.service.AlbumService;
 import br.gov.mt.seplag.seletivo.service.MinioStorageService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springdoc.core.annotations.ParameterObject;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -20,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Set;
 
+@Tag(name = "Álbuns", description = "Operações para cadastro e consulta de álbuns")
 @RestController
 @RequestMapping("/api/v1/albuns")
 public class AlbumController {
@@ -32,45 +41,79 @@ public class AlbumController {
         this.minioStorageService = minioStorageService;
     }
 
+    @Operation(summary = "Listar álbuns", description = "Lista álbuns ativos com paginação.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Lista paginada de álbuns",
+                    content = @Content(schema = @Schema(implementation = AlbumResponseDTO.class)))
+    })
     @GetMapping
-    public ResponseEntity<Page<AlbumResponseDTO>> listar(Pageable pageable) {
+    public ResponseEntity<Page<AlbumResponseDTO>> listar(@ParameterObject Pageable pageable) {
         Page<Album> albuns = albumService.listar(pageable);
         return ResponseEntity.ok(mapPage(albuns));
     }
 
+    @Operation(summary = "Buscar álbum por ID", description = "Retorna um álbum pelo identificador.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Álbum encontrado",
+                    content = @Content(schema = @Schema(implementation = AlbumResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Álbum não encontrado")
+    })
     @GetMapping("/{id}")
     public ResponseEntity<AlbumResponseDTO> buscarPorId(@PathVariable Long id) {
         Album album = albumService.buscarPorId(id);
         return ResponseEntity.ok(toResponse(album));
     }
 
+    @Operation(summary = "Listar álbuns por artista (ID)",
+            description = "Lista álbuns ativos vinculados ao artista informado.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Lista paginada de álbuns",
+                    content = @Content(schema = @Schema(implementation = AlbumResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Artista não encontrado ou sem álbuns")
+    })
     @GetMapping("/por-artista/{artistaId}")
     public ResponseEntity<Page<AlbumResponseDTO>> listarPorArtista(
             @PathVariable Long artistaId,
-            Pageable pageable
+            @ParameterObject Pageable pageable
     ) {
         Page<Album> albuns = albumService.listarPorArtista(artistaId, pageable);
         return ResponseEntity.ok(mapPage(albuns));
     }
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE )
-    public ResponseEntity<AlbumResponseDTO> criar(
-            @Valid @RequestBody AlbumRequestDTO request
+    @Operation(summary = "Listar álbuns por nome do artista",
+            description = "Busca álbuns por nome do artista (parcial, case-insensitive).")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Lista paginada de álbuns",
+                    content = @Content(schema = @Schema(implementation = AlbumResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Artista sem álbuns")
+    })
+    @GetMapping("/por-artista")
+    public ResponseEntity<Page<AlbumResponseDTO>> listarPorNomeArtista(
+            @RequestParam String nome,
+            @ParameterObject Pageable pageable
     ) {
-        Album album = new Album();
-        album.setTitulo(request.titulo());
-        album.setAnoLancamento(request.anoLancamento());
-
-        Album criado = albumService.criar(album, request.artistasIds(), request.capas());
-        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(criado));
+        Page<Album> albuns = albumService.listarPorNomeArtista(nome, pageable);
+        return ResponseEntity.ok(mapPage(albuns));
     }
 
+    @Operation(summary = "Criar álbum com upload de capas",
+            description = "Cria álbum e envia capas diretamente para o MinIO.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Álbum criado",
+                    content = @Content(schema = @Schema(implementation = AlbumResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos")
+    })
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE )
     public ResponseEntity<AlbumResponseDTO> criarComCapas(
+            @Parameter(description = "Título do álbum", required = true)
             @RequestParam String titulo,
+            @Parameter(description = "Ano de lançamento do álbum")
             @RequestParam(required = false) Integer anoLancamento,
+            @Parameter(description = "IDs dos artistas vinculados", required = true)
             @RequestParam Set<Long> artistasIds,
+            @Parameter(description = "Arquivos de capa (image/*)")
             @RequestParam(name = "files", required = false) List<MultipartFile> files,
+            @Parameter(description = "Define a primeira capa como principal")
             @RequestParam(defaultValue = "false") boolean principal
     ) {
         Album album = new Album();
@@ -81,6 +124,14 @@ public class AlbumController {
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(criado));
     }
 
+    @Operation(summary = "Atualizar álbum",
+            description = "Atualiza dados básicos, artistas e capas do álbum.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Álbum atualizado",
+                    content = @Content(schema = @Schema(implementation = AlbumResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+            @ApiResponse(responseCode = "404", description = "Álbum não encontrado")
+    })
     @PutMapping("/{id}")
     public ResponseEntity<AlbumResponseDTO> atualizar(
             @PathVariable Long id,
@@ -90,10 +141,15 @@ public class AlbumController {
         album.setTitulo(request.titulo());
         album.setAnoLancamento(request.anoLancamento());
 
-        Album atualizado = albumService.atualizar(id, album);
+        Album atualizado = albumService.atualizar(id, album, request.artistasIds(), request.capas());
         return ResponseEntity.ok(toResponse(atualizado));
     }
 
+    @Operation(summary = "Inativar álbum", description = "Marca o álbum como inativo.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Álbum inativado"),
+            @ApiResponse(responseCode = "404", description = "Álbum não encontrado")
+    })
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void inativar(@PathVariable Long id) {

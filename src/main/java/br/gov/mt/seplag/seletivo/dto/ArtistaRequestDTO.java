@@ -6,7 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record ArtistaRequestDTO(
+        @Schema(description = "Nome do artista", example = "Serj Tankian")
         @NotBlank String nome,
-        @Schema(allowableValues = {"SOLO", "BANDA"})
+        @Schema(description = "Tipo do artista", allowableValues = {"SOLO", "BANDA"})
         @NotNull TipoArtistaEnum tipo
 ) {}
