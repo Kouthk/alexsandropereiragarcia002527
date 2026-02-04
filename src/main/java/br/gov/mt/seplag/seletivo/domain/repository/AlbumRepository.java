@@ -20,6 +20,9 @@ public interface AlbumRepository extends JpaRepository<Album, Long> {
     Page<Album> findByArtistasIdAndAtivoTrue(Long artistaId, Pageable pageable);
 
     @EntityGraph(attributePaths = {"artistas", "capas"})
+    Page<Album> findByArtistasNomeContainingIgnoreCaseAndAtivoTrue(String nome, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"artistas", "capas"})
     Optional<Album> findByIdAndAtivoTrue(Long id);
 
 

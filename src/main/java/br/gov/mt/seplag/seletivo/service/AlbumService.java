@@ -54,7 +54,7 @@ public class AlbumService implements LayerDefinition {
         album.setUpdatedAt(LocalDateTime.now());
 
         Set<Artista> artistas = buscarArtistasObrigatorios(artistasIds);
-        album.setArtistas(artistas);
+        vincularArtistas(album, artistas);
 
         Album salvo = albumRepository.save(album);
         if (capas != null && !capas.isEmpty()) {
@@ -85,7 +85,7 @@ public class AlbumService implements LayerDefinition {
         album.setUpdatedAt(LocalDateTime.now());
 
         Set<Artista> artistas = buscarArtistasObrigatorios(artistasIds);
-        album.setArtistas(artistas);
+        vincularArtistas(album, artistas);
 
         // 1) salva primeiro pra ter ID
         Album salvo = albumRepository.save(album);
@@ -133,20 +133,55 @@ public class AlbumService implements LayerDefinition {
      */
     @Transactional(readOnly = true)
     public Page<Album> listarPorArtista(Long artistaId, Pageable pageable) {
-        validarArtistaExiste(artistaId);
-        return albumRepository.findByArtistasIdAndAtivoTrue(artistaId, pageable);
+        Page<Album> resultado = albumRepository.findByArtistasIdAndAtivoTrue(artistaId, pageable);
+        validarResultadoArtista(resultado);
+        return resultado;
+    }
+
+    /**
+     * Lista álbuns por nome do artista.
+     */
+    @Transactional(readOnly = true)
+    public Page<Album> listarPorNomeArtista(String nome, Pageable pageable) {
+        if (nome == null || nome.isBlank()) {
+            return albumRepository.findByAtivoTrue(pageable);
+        }
+        Page<Album> resultado = albumRepository.findByArtistasNomeContainingIgnoreCaseAndAtivoTrue(nome, pageable);
+        validarResultadoArtista(resultado);
+        return resultado;
     }
 
     /**
      * Atualiza dados básicos do álbum.
      */
     @Transactional
-    public Album atualizar(Long id, Album atualizado) {
+    public Album atualizar(
+            Long id,
+            Album atualizado,
+            Set<Long> artistasIds,
+            List<AlbumCapaRequestDTO> capas
+    ) {
         Album existente = buscarPorId(id);
 
         existente.setTitulo(atualizado.getTitulo());
         existente.setAnoLancamento(atualizado.getAnoLancamento());
         existente.setUpdatedAt(LocalDateTime.now());
+
+        if (artistasIds != null) {
+            Set<Artista> artistas = buscarArtistasObrigatorios(artistasIds);
+            atualizarArtistas(existente, artistas);
+        }
+
+        if (capas != null) {
+            albumCapaService.removerTodasPorAlbum(existente.getId());
+            for (AlbumCapaRequestDTO capa : capas) {
+                albumCapaService.adicionarCapa(
+                        existente.getId(),
+                        capa.objectKey(),
+                        Boolean.TRUE.equals(capa.principal())
+                );
+            }
+        }
 
         return albumRepository.save(existente);
     }
@@ -207,6 +242,37 @@ public class AlbumService implements LayerDefinition {
             capas.add(new AlbumCapaRequestDTO(objectKeys.get(index), isPrincipal));
         }
         return capas;
+    }
+
+    private void validarResultadoArtista(Page<Album> resultado) {
+        if (resultado.isEmpty()) {
+            throw new ResourceNotFoundException("Nenhum álbum vinculado a este artista", this);
+        }
+    }
+
+    private void vincularArtistas(Album album, Set<Artista> artistas) {
+        album.setArtistas(artistas);
+        for (Artista artista : artistas) {
+            Set<Album> albuns = artista.getAlbuns();
+            if (albuns == null) {
+                albuns = new HashSet<>();
+                artista.setAlbuns(albuns);
+            }
+            albuns.add(album);
+        }
+    }
+
+    private void atualizarArtistas(Album album, Set<Artista> novosArtistas) {
+        Set<Artista> atuais = album.getArtistas();
+        if (atuais != null) {
+            for (Artista artista : atuais) {
+                Set<Album> albuns = artista.getAlbuns();
+                if (albuns != null) {
+                    albuns.remove(album);
+                }
+            }
+        }
+        vincularArtistas(album, novosArtistas);
     }
 
     @Override
