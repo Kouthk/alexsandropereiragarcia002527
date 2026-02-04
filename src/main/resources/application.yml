@@ -43,3 +43,8 @@ management:
     web:
       exposure:
         include: health,info,metrics,env
+security:
+  jwt:
+    secret: ${JWT_SECRET:change-me-use-256-bit-secret-key}
+    access-token-expiration-minutes: ${JWT_ACCESS_EXP_MINUTES:5}
+    refresh-token-expiration-days: ${JWT_REFRESH_EXP_DAYS:1}
