@@ -1,4 +1,4 @@
-package br.gov.mt.seplag.seletivo.config.Minio;
+package br.gov.mt.seplag.seletivo.config.minio;
 
 import io.minio.MinioClient;
 import org.springframework.beans.factory.annotation.Value;

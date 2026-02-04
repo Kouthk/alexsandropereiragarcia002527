@@ -1,4 +1,4 @@
-package br.gov.mt.seplag.seletivo.config.Minio;
+package br.gov.mt.seplag.seletivo.config.minio;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;

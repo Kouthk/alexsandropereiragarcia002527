@@ -1,4 +1,4 @@
-package br.gov.mt.seplag.seletivo.config.WebSocket;
+package br.gov.mt.seplag.seletivo.config.websocket;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
