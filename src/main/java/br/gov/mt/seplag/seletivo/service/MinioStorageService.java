@@ -1,6 +1,6 @@
 package br.gov.mt.seplag.seletivo.service;
 
-import br.gov.mt.seplag.seletivo.config.Minio.MinioProperties;
+import br.gov.mt.seplag.seletivo.config.minio.MinioProperties;
 import br.gov.mt.seplag.seletivo.exception.LayerDefinition;
 import br.gov.mt.seplag.seletivo.exception.StorageException;
 import br.gov.mt.seplag.seletivo.exception.enums.LayerEnum;
