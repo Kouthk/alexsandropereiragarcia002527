@@ -121,9 +121,9 @@ public class AlbumController {
     })
     @GetMapping("/filtro")
     public ResponseEntity<Page<AlbumResponseDTO>> listarPorFiltros(
-            @RequestParam(required = false) String titulo,
-            @RequestParam(required = false) String artista,
-            @RequestParam(required = false) TipoArtistaEnum tipo,
+            @RequestParam String titulo,
+            @RequestParam String artista,
+            @RequestParam TipoArtistaEnum tipo,
             @ParameterObject Pageable pageable
     ) {
         Page<Album> albuns = albumService.listarPorFiltros(titulo, artista, tipo, pageable);

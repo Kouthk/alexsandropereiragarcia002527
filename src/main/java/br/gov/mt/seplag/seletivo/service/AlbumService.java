@@ -67,8 +67,11 @@ public class AlbumService implements LayerDefinition {
                 );
             }
         }
-        albumNotificationService.notifyAlbumCreated(salvo);
-        return salvo;
+        Album carregado = albumRepository.findByIdAndAtivoTrue(salvo.getId())
+                .orElse(salvo);
+        inicializarRelacoes(carregado);
+        albumNotificationService.notifyAlbumCreated(carregado);
+        return carregado;
     }
 
     /**
@@ -105,8 +108,11 @@ public class AlbumService implements LayerDefinition {
                 );
             }
         }
-        albumNotificationService.notifyAlbumCreated(salvo);
-        return salvo;
+        Album carregado = albumRepository.findByIdAndAtivoTrue(salvo.getId())
+                .orElse(salvo);
+        inicializarRelacoes(carregado);
+        albumNotificationService.notifyAlbumCreated(carregado);
+        return carregado;
     }
 
     /**
@@ -114,11 +120,13 @@ public class AlbumService implements LayerDefinition {
      */
     @Transactional(readOnly = true)
     public Album buscarPorId(Long id) {
-        return albumRepository.findById(id)
+        Album album = albumRepository.findByIdAndAtivoTrue(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Álbum não encontrado",
                         this
                 ));
+        inicializarRelacoes(album);
+        return album;
     }
 
     /**
@@ -126,7 +134,9 @@ public class AlbumService implements LayerDefinition {
      */
     @Transactional(readOnly = true)
     public Page<Album> listar(Pageable pageable) {
-        return albumRepository.findByAtivoTrue(pageable);
+        Page<Album> page = albumRepository.findByAtivoTrue(pageable);
+        inicializarRelacoes(page.getContent());
+        return page;
     }
 
     /**
@@ -136,6 +146,7 @@ public class AlbumService implements LayerDefinition {
     public Page<Album> listarPorArtista(Long artistaId, Pageable pageable) {
         Page<Album> resultado = albumRepository.findByArtistasIdAndAtivoTrue(artistaId, pageable);
         validarResultadoArtista(resultado);
+        inicializarRelacoes(resultado.getContent());
         return resultado;
     }
 
@@ -158,10 +169,13 @@ public class AlbumService implements LayerDefinition {
     @Transactional(readOnly = true)
     public Page<Album> listarPorTipoArtista(TipoArtistaEnum tipo, Pageable pageable) {
         if (tipo == null) {
-            return albumRepository.findByAtivoTrue(pageable);
+            Page<Album> page = albumRepository.findByAtivoTrue(pageable);
+            inicializarRelacoes(page.getContent());
+            return page;
         }
         Page<Album> resultado = albumRepository.findByArtistasTipoAndAtivoTrue(tipo, pageable);
         validarResultadoArtista(resultado);
+        inicializarRelacoes(resultado.getContent());
         return resultado;
     }
 
@@ -170,12 +184,14 @@ public class AlbumService implements LayerDefinition {
      */
     @Transactional(readOnly = true)
     public Page<Album> listarPorFiltros(String titulo, String artistaNome, TipoArtistaEnum tipo, Pageable pageable) {
-        return albumRepository.findByFiltros(
+        Page<Album> page = albumRepository.findByFiltros(
                 regularizaFiltro(titulo),
                 regularizaFiltro(artistaNome),
                 tipo,
                 pageable
         );
+        inicializarRelacoes(page.getContent());
+        return page;
     }
 
 
@@ -310,6 +326,26 @@ public class AlbumService implements LayerDefinition {
         return valor.trim();
     }
 
+    private void inicializarRelacoes(Album album) {
+        if (album == null) {
+            return;
+        }
+        if (album.getArtistas() != null) {
+            album.getArtistas().size();
+        }
+        if (album.getCapas() != null) {
+            album.getCapas().size();
+        }
+    }
+
+    private void inicializarRelacoes(List<Album> albums) {
+        if (albums == null || albums.isEmpty()) {
+            return;
+        }
+        for (Album album : albums) {
+            inicializarRelacoes(album);
+        }
+    }
 
     @Override
     public String getClassName() {

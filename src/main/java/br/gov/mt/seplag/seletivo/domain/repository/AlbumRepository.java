@@ -31,7 +31,6 @@ public interface AlbumRepository extends JpaRepository<Album, Long> {
     @EntityGraph(attributePaths = {"artistas", "capas"})
     Optional<Album> findByIdAndAtivoTrue(Long id);
 
-    @EntityGraph(attributePaths = {"artistas", "capas"})
     @Query("""
             SELECT DISTINCT a FROM Album a
             JOIN a.artistas ar
