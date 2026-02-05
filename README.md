@@ -1,14 +1,17 @@
+# SELETIVO SEPLAG/MT - 2026 -  (Back End Java)
+
 ## Dados de Inscrição
 - **Nome completo**: Alex Sandro Pereira Garcia
 - **CPF**: 00252745116
 - **E-mail**: aalex.spg@gmail.com
-- **Vaga**: Analista de TI – Engenheiro da Computação (Sênior)- **Inscrição**: 16480
+- **Vaga**: Analista de TI – Engenheiro da Computação (Sênior)
+- **Inscrição**: 16480
 
 ## Objetivo
 API REST para gestão de artistas e álbuns, com relacionamento N:N, paginação e upload de capas em MinIO, conforme edital.
 
 ## Stack
-- Java 17 / Spring Boot 3
+- Java 17+ / Spring Boot 3
 - PostgreSQL
 - Flyway
 - MinIO (S3)
@@ -18,7 +21,21 @@ API REST para gestão de artistas e álbuns, com relacionamento N:N, paginação
 
 ## Como executar
 
-### 1) Subir tudo via Docker Compose (API + DB + MinIO)
+### 1) Baixar o repositório
+```bash
+git clone https://github.com/Kouthk/alexsandropereiragarcia002527.git
+cd alexsandropereiragarcia002527
+```
+
+### 2) Limpar o cache/volumes do Docker
+(Recomendado) Limpe o cache/volumes do Docker antes de subir, para evitar conflitos de banco/porta:
+```bash
+docker compose down -v --remove-orphans
+docker volume prune -f
+docker builder prune -f
+```
+
+### 3) Subir tudo via Docker Compose (API + DB + MinIO)
 ```bash
 docker-compose up -d --build
 ```
@@ -26,17 +43,8 @@ docker-compose up -d --build
 - Swagger: `http://localhost:8080/swagger-ui.html`
 - MinIO Console: `http://localhost:9001`
 
-### 2) Executar localmente (sem Docker)
-Requer PostgreSQL e MinIO rodando localmente. Os defaults estão em `application.yml`.
 
-```bash
-mvn spring-boot:run
-```
 
-## Como executar os testes
-```bash
-mvn test
-```
 
 Se estiver em IDE/Windows, reimporte o projeto Maven para garantir o classpath de testes.
 
@@ -44,32 +52,51 @@ Se estiver em IDE/Windows, reimporte o projeto Maven para garantir o classpath d
 - JWT com expiração configurável por `security.jwt.access-token-expiration-minutes`.
 - Refresh token persistido em tabela `tokens`.
 - Endpoints:
-    - `POST /api/v1/auth/login`
-    - `POST /api/v1/auth/refresh`
-    - `POST /api/v1/auth/logout`
+  - `POST /api/v1/auth/login`
+  - `POST /api/v1/auth/refresh`
+  - `POST /api/v1/auth/logout`
+- **Usuário admin (carga inicial)**:
+  - **username**: `admin`
+  - **password**: `admin`
+
+## MinIO (credenciais)
+- **Console**: `http://localhost:9001`
+- **Usuário**: `minioadmin`
+- **Senha**: `minioadmin`
+
+## Como testar no Swagger
+1. Acesse `http://localhost:8080/swagger-ui.html`.
+2. Faça login em `POST /api/v1/auth/login` com o usuário `admin` para obter o `accessToken`.
+3. Clique em **Authorize** e informe: `Bearer <accessToken>`.
+4. Execute os endpoints desejados (ex.: `/api/v1/artistas`, `/api/v1/albuns`).
 
 ## Endpoints principais (versionados)
-- **Artistas**: `/api/v1/artistas`
-    - `GET /api/v1/artistas` (ordenar via `sort=nome,asc|desc`)
-    - `GET /api/v1/artistas/{id}`
-    - `POST /api/v1/artistas`
-    - `PUT /api/v1/artistas/{id}`
-- **Álbuns**: `/api/v1/albuns`
-    - `GET /api/v1/albuns` (paginado)
-    - `GET /api/v1/albuns/{id}`
-    - `GET /api/v1/albuns/por-artista/{artistaId}`
-    - `GET /api/v1/albuns/por-artista?nome=...`
-    - `GET /api/v1/albuns/por-tipo?tipo=BANDA|SOLO`
-    - `POST /api/v1/albuns/upload` (multipart, cria álbum + capas no MinIO)
-    - `PUT /api/v1/albuns/{id}`
-    - `DELETE /api/v1/albuns/{id}` (inativa)
-- **Capas**: `/api/v1/albuns/{albumId}/capas`
-    - `GET /api/v1/albuns/{albumId}/capas`
-    - `POST /api/v1/albuns/{albumId}/capas/upload`
-    - `PUT /api/v1/albuns/{albumId}/capas/{capaId}/principal`
-- **Regionais**: `/api/v1/regionais`
-    - `GET /api/v1/regionais`
-    - `POST /api/v1/regionais/sync`
+- **Artistas**: 
+  - `/api/v1/artistas`
+  - `GET /api/v1/artistas` (ordenar via `sort=nome,asc|desc`)
+  - `GET /api/v1/artistas/{id}`
+  - `POST /api/v1/artistas`
+  - `PUT /api/v1/artistas/{id}`
+- **Álbuns**: 
+  - `/api/v1/albuns`
+  - `GET /api/v1/albuns` (paginado)
+  - `GET /api/v1/albuns/{id}`
+  - `GET /api/v1/albuns/por-artista/{artistaId}`
+  - `GET /api/v1/albuns/por-artista?nome=...`
+  - `GET /api/v1/albuns/por-tipo?tipo=BANDA|SOLO`
+  - `GET /api/v1/albuns/filtro?titulo=...&artista=...&tipo=BANDA|SOLO` 
+  - `POST /api/v1/albuns/upload` (multipart, cria álbum + capas no MinIO)
+  - `PUT /api/v1/albuns/{id}`
+  - `DELETE /api/v1/albuns/{id}` (inativa)
+- **Capas**: 
+  - `/api/v1/albuns/{albumId}/capas`
+  - `GET /api/v1/albuns/{albumId}/capas`
+  - `POST /api/v1/albuns/{albumId}/capas/upload`
+  - `PUT /api/v1/albuns/{albumId}/capas/{capaId}/principal`
+- **Regionais**:
+  - `/api/v1/regionais`
+  - `GET /api/v1/regionais`
+  - `POST /api/v1/regionais/sync`
 
 ## WebSocket
 - Endpoint STOMP: `/ws`
