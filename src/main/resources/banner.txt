@@ -9,6 +9,6 @@
  ------------------------------------------------
  Spring Boot Version : ${spring-boot.version}
  Application Port    : ${server.port}
- Swagger UI          : http://localhost:${server.port}/swagger-ui.html
- Actuator Health     : http://localhost:${server.port}/actuator/health
+ Swagger UI          : ${app.base-url}/swagger-ui.html
+ Actuator Health     : ${app.base-url}/actuator/health
  ------------------------------------------------

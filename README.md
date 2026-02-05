@@ -18,6 +18,7 @@ API REST para gestão de artistas e álbuns, com relacionamento N:N, paginação
 - OpenAPI/Swagger
 - WebSocket (STOMP)
 - Docker / docker-compose
+- Nginx
 
 ## Como executar
 
@@ -35,7 +36,7 @@ docker volume prune -f
 docker builder prune -f
 ```
 
-### 3) Subir tudo via Docker Compose (API + DB + MinIO)
+### 3) Subir tudo via Docker Compose (API + DB + MinIO + Nginx)
 ```bash
 docker-compose up -d --build
 ```
@@ -43,8 +44,10 @@ docker-compose up -d --build
 - Swagger: `http://localhost:8080/swagger-ui.html`
 - MinIO Console: `http://localhost:9001`
 
-
-
+- NGINX:
+- API (via Nginx): `http://localhost/`
+- Swagger (via Nginx): `http://localhost/swagger-ui.html`
+-  MinIO (via Nginx): `http://localhost/minio`
 
 Se estiver em IDE/Windows, reimporte o projeto Maven para garantir o classpath de testes.
 
@@ -55,6 +58,7 @@ Se estiver em IDE/Windows, reimporte o projeto Maven para garantir o classpath d
   - `POST /api/v1/auth/login`
   - `POST /api/v1/auth/refresh`
   - `POST /api/v1/auth/logout`
+  
 - **Usuário admin (carga inicial)**:
   - **username**: `admin`
   - **password**: `admin`
@@ -77,6 +81,7 @@ Se estiver em IDE/Windows, reimporte o projeto Maven para garantir o classpath d
   - `GET /api/v1/artistas/{id}`
   - `POST /api/v1/artistas`
   - `PUT /api/v1/artistas/{id}`
+  
 - **Álbuns**: 
   - `/api/v1/albuns`
   - `GET /api/v1/albuns` (paginado)
@@ -88,11 +93,13 @@ Se estiver em IDE/Windows, reimporte o projeto Maven para garantir o classpath d
   - `POST /api/v1/albuns/upload` (multipart, cria álbum + capas no MinIO)
   - `PUT /api/v1/albuns/{id}`
   - `DELETE /api/v1/albuns/{id}` (inativa)
+
 - **Capas**: 
   - `/api/v1/albuns/{albumId}/capas`
   - `GET /api/v1/albuns/{albumId}/capas`
   - `POST /api/v1/albuns/{albumId}/capas/upload`
   - `PUT /api/v1/albuns/{albumId}/capas/{capaId}/principal`
+
 - **Regionais**:
   - `/api/v1/regionais`
   - `GET /api/v1/regionais`

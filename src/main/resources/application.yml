@@ -29,6 +29,9 @@ springdoc:
 server:
   port: 8080
 
+app:
+  base-url: ${APP_BASE_URL:http://localhost:${server.port}}
+
 regionais:
   url: ${REGIONAIS_URL:https://integrador-argus-api.geia.vip/v1/regionais}
 

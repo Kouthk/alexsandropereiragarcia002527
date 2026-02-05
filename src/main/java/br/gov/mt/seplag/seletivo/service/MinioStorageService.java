@@ -13,6 +13,7 @@ import io.minio.http.Method;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URI;
 import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
@@ -64,7 +65,7 @@ public class MinioStorageService implements LayerDefinition {
 
     public String gerarUrlPresignada(String objectKey) {
         try {
-            return minioClient.getPresignedObjectUrl(
+            String presignedUrl = minioClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .bucket(properties.getBucket())
                             .object(objectKey)
@@ -72,6 +73,7 @@ public class MinioStorageService implements LayerDefinition {
                             .expiry(30, TimeUnit.MINUTES)
                             .build()
             );
+            return aplicarPublicUrl(presignedUrl);
         } catch (Exception ex) {
             throw new StorageException("Erro ao gerar URL de acesso da capa", this);
         }
@@ -111,6 +113,42 @@ public class MinioStorageService implements LayerDefinition {
         String safeName = Objects.requireNonNullElse(originalFilename, "capa")
                 .replaceAll("[^a-zA-Z0-9._-]", "_");
         return "albuns/" + UUID.randomUUID() + "-" + safeName;    }
+
+
+    private String aplicarPublicUrl(String presignedUrl) {
+        String publicUrl = properties.getPublicUrl();
+        if (publicUrl == null || publicUrl.isBlank()) {
+            return presignedUrl;
+        }
+
+        URI presignedUri = URI.create(presignedUrl);
+        URI publicBase = URI.create(publicUrl);
+        String basePath = publicBase.getPath();
+        String presignedPath = presignedUri.getRawPath();
+
+        String combinedPath;
+        if (basePath == null || basePath.isBlank() || "/".equals(basePath)) {
+            combinedPath = presignedPath;
+        } else {
+            String normalizedBase = basePath.endsWith("/") ? basePath.substring(0, basePath.length() - 1) : basePath;
+            String normalizedPresigned = presignedPath.startsWith("/") ? presignedPath : "/" + presignedPath;
+            combinedPath = normalizedBase + normalizedPresigned;
+        }
+
+        StringBuilder urlBuilder = new StringBuilder()
+                .append(publicBase.getScheme())
+                .append("://")
+                .append(publicBase.getHost());
+        if (publicBase.getPort() != -1) {
+            urlBuilder.append(":").append(publicBase.getPort());
+        }
+        urlBuilder.append(combinedPath);
+        if (presignedUri.getRawQuery() != null) {
+            urlBuilder.append("?").append(presignedUri.getRawQuery());
+        }
+        return URI.create(urlBuilder.toString()).toString();
+    }
+
 
     @Override
     public String getClassName() {

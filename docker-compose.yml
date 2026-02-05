@@ -1,6 +1,16 @@
 version: "3.9"
 
 services:
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: nginx-seletivo-alexsandropereiragarcia002527
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      api:
+        condition: service_started
   db:
     image: postgres:15-alpine
     container_name: postgres-alexsandropereiragarcia002527
@@ -39,7 +49,9 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/seletivoSeplagalexsandropereiragarcia002527
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: 123456
+      APP_BASE_URL: http://localhost
       MINIO_URL: http://minio:9000
+      MINIO_PUBLIC_URL: http://localhost/minio
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin
       MINIO_BUCKET: album-capas

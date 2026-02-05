@@ -9,6 +9,8 @@ import br.gov.mt.seplag.seletivo.dto.AlbumCapaRequestDTO;
 import br.gov.mt.seplag.seletivo.exception.ResourceNotFoundException;
 import br.gov.mt.seplag.seletivo.exception.enums.LayerEnum;
 import br.gov.mt.seplag.seletivo.exception.LayerDefinition;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.validation.constraints.Min;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +32,10 @@ public class AlbumService implements LayerDefinition {
     private final AlbumCapaService albumCapaService;
     private final MinioStorageService minioStorageService;
     private final AlbumNotificationService albumNotificationService;
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
 
     public AlbumService(
             AlbumRepository albumRepository,
@@ -67,9 +73,7 @@ public class AlbumService implements LayerDefinition {
                 );
             }
         }
-        Album carregado = albumRepository.findByIdAndAtivoTrue(salvo.getId())
-                .orElse(salvo);
-        inicializarRelacoes(carregado);
+        Album carregado = carregarAlbumComRelacoes(salvo.getId());
         albumNotificationService.notifyAlbumCreated(carregado);
         return carregado;
     }
@@ -108,9 +112,8 @@ public class AlbumService implements LayerDefinition {
                 );
             }
         }
-        Album carregado = albumRepository.findByIdAndAtivoTrue(salvo.getId())
-                .orElse(salvo);
-        inicializarRelacoes(carregado);
+
+        Album carregado = carregarAlbumComRelacoes(salvo.getId());
         albumNotificationService.notifyAlbumCreated(carregado);
         return carregado;
     }
@@ -347,6 +350,18 @@ public class AlbumService implements LayerDefinition {
         }
     }
 
+    private Album carregarAlbumComRelacoes(Long albumId) {
+        entityManager.flush();
+        entityManager.clear();
+
+        Album carregado = albumRepository.findByIdAndAtivoTrue(albumId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Álbum não encontrado",
+                        this
+                ));
+        inicializarRelacoes(carregado);
+        return carregado;
+    }
     @Override
     public String getClassName() {
         return this.getClass().getSimpleName();
