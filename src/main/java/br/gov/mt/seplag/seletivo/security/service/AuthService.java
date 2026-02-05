@@ -7,6 +7,7 @@ import br.gov.mt.seplag.seletivo.security.config.JwtProperties;
 import br.gov.mt.seplag.seletivo.security.dto.AuthResponseDTO;
 import br.gov.mt.seplag.seletivo.security.entity.User;
 import br.gov.mt.seplag.seletivo.security.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -38,13 +39,16 @@ public class AuthService implements LayerDefinition {
 
     public AuthResponseDTO login(String username, String password) {
         try {
+
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new AuthorizationException("Usuário não encontrado.", this));
+
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(username, password)
             );
 
-            String accessToken = jwtService.generateAccessToken(authentication.getName());
-            User user = userRepository.findByUsername(authentication.getName())
-                    .orElseThrow(() -> new AuthorizationException("Usuário não encontrado.", this));
+            String accessToken = jwtService.generateAccessToken(username);
+
             String refreshToken = tokenService.createRefreshToken(user);
 
             return new AuthResponseDTO(
@@ -58,6 +62,7 @@ public class AuthService implements LayerDefinition {
         }
     }
 
+    @Transactional
     public AuthResponseDTO refresh(String refreshToken) {
         User user = tokenService.validateRefreshToken(refreshToken);
         tokenService.revokeRefreshToken(refreshToken);
