@@ -22,7 +22,8 @@ public class GlobalExceptionHandler {
             ResourceNotFoundException ex,
             HttpServletRequest request
     ) {
-        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI(), List.of());
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI(), List.of(),
+                "ResourceNotFoundException");
     }
 
     @ExceptionHandler({BusinessException.class, StorageException.class})
@@ -30,7 +31,8 @@ public class GlobalExceptionHandler {
             RuntimeException ex,
             HttpServletRequest request
     ) {
-        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI(), List.of());
+        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI(), List.of(),
+                "BusinessException");
     }
 
     @ExceptionHandler({AuthorizationException.class, TokenException.class})
@@ -38,7 +40,8 @@ public class GlobalExceptionHandler {
             RuntimeException ex,
             HttpServletRequest request
     ) {
-        return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage(), request.getRequestURI(), List.of());
+        return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage(), request.getRequestURI(), List.of(),
+                "AuthorizationException");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -51,7 +54,8 @@ public class GlobalExceptionHandler {
                 .stream()
                 .map(this::mapFieldError)
                 .toList();
-        return buildResponse(HttpStatus.UNPROCESSABLE_ENTITY, "Dados inválidos", request.getRequestURI(), fields);
+        return buildResponse(HttpStatus.UNPROCESSABLE_ENTITY, "Dados inválidos", request.getRequestURI(), fields,
+                "MissingServletRequestParameterException");
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
@@ -60,7 +64,8 @@ public class GlobalExceptionHandler {
             HttpServletRequest request
     ) {
         String message = "Parâmetro obrigatório ausente: " + ex.getParameterName();
-        return buildResponse(HttpStatus.BAD_REQUEST, message, request.getRequestURI(), List.of());
+        return buildResponse(HttpStatus.BAD_REQUEST, message, request.getRequestURI(), List.of(),
+                "MissingServletRequestParameterException");
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
@@ -71,7 +76,9 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.PAYLOAD_TOO_LARGE,
                 "Arquivo excede o tamanho máximo permitido",
                 request.getRequestURI(),
-                List.of());
+                List.of(),
+                "MaxUploadSizeExceededException");
+
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -86,7 +93,8 @@ public class GlobalExceptionHandler {
                 message = "Tipo de artista inválido. Use: SOLO ou BANDA.";
             }
         }
-        return buildResponse(HttpStatus.BAD_REQUEST, message, request.getRequestURI(), List.of());
+        return buildResponse(HttpStatus.BAD_REQUEST, message, request.getRequestURI(), List.of(),
+                "HttpMessageNotReadableException");
     }
 
     @ExceptionHandler(Exception.class)
@@ -94,17 +102,23 @@ public class GlobalExceptionHandler {
             Exception ex,
             HttpServletRequest request
     ) {
+
+        ex.printStackTrace();
+
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR,
                 "Erro inesperado",
                 request.getRequestURI(),
-                List.of());
+                List.of(),
+                "Exception");
+
     }
 
     private ResponseEntity<ApiError> buildResponse(
             HttpStatus status,
             String message,
             String path,
-            List<ApiError.FieldError> fieldErrors
+            List<ApiError.FieldError> fieldErrors,
+            String exception
     ) {
         ApiError error = new ApiError(
                 LocalDateTime.now(),
@@ -112,7 +126,8 @@ public class GlobalExceptionHandler {
                 status.getReasonPhrase(),
                 message,
                 path,
-                fieldErrors
+                fieldErrors,
+                exception
         );
         return ResponseEntity.status(status).body(error);
     }
