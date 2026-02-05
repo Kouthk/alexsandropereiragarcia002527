@@ -3,9 +3,9 @@ version: "3.9"
 services:
   db:
     image: postgres:15-alpine
-    container_name: seletivo-postgres
+    container_name: postgres-alexsandropereiragarcia002527
     environment:
-      POSTGRES_DB: seletivoSeplag
+      POSTGRES_DB: seletivoSeplagalexsandropereiragarcia002527
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123456
     ports:
@@ -13,14 +13,14 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d seletivoSeplag"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d seletivoSeplagalexsandropereiragarcia002527"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   minio:
     image: minio/minio:latest
-    container_name: seletivo-minio
+    container_name: minio-alexsandropereiragarcia002527
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
@@ -34,9 +34,9 @@ services:
   api:
     build:
       context: .
-    container_name: seletivo-api
+    container_name: seletivo-api-alexsandropereiragarcia002527
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/seletivoSeplag
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/seletivoSeplagalexsandropereiragarcia002527
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: 123456
       MINIO_URL: http://minio:9000
