@@ -47,7 +47,7 @@ public class AuthService implements LayerDefinition {
                     new UsernamePasswordAuthenticationToken(username, password)
             );
 
-            String accessToken = jwtService.generateAccessToken(username);
+            String accessToken = jwtService.generateAccessToken(authentication.getName());
 
             String refreshToken = tokenService.createRefreshToken(user);
 
