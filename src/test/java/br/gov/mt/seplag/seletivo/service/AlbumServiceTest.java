@@ -155,4 +155,16 @@ class AlbumServiceTest {
         assertThat(existente.getArtistas()).containsExactly(novoArtista);
         assertThat(artistaAtual.getAlbuns()).doesNotContain(existente);
     }
+
+    @Test
+    void listarPorFiltrosDeveDelegarParaRepositorio() {
+        Page<Album> esperado = new PageImpl<>(List.of(new Album()));
+        when(albumRepository.findByFiltros(eq("Titulo"), eq("Artista"), eq(TipoArtistaEnum.BANDA), any(Pageable.class)))
+                .thenReturn(esperado);
+
+        Page<Album> resultado = albumService.listarPorFiltros("Titulo", "Artista", TipoArtistaEnum.BANDA, PageRequest.of(0, 10));
+
+        assertThat(resultado).isSameAs(esperado);
+        verify(albumRepository).findByFiltros(eq("Titulo"), eq("Artista"), eq(TipoArtistaEnum.BANDA), any(Pageable.class));
+    }
 }
