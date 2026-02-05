@@ -27,12 +27,24 @@ public class RateLimitFilter extends OncePerRequestFilter {
     private final Map<String, Bucket> buckets = new ConcurrentHashMap<>();
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+
+        return path.startsWith("/swagger-ui")
+                || path.startsWith("/v3/api-docs")
+                || path.equals("/swagger-ui.html")
+                || path.startsWith("/actuator");
+    }
+
+    @Override
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
+
         String key = resolveKey(request);
+
         Bucket bucket = buckets.computeIfAbsent(key, value -> Bucket.builder()
                 .addLimit(Bandwidth.classic(
                         MAX_REQUESTS_PER_MINUTE,
@@ -48,18 +60,26 @@ public class RateLimitFilter extends OncePerRequestFilter {
         response.setStatus(429);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        response.getWriter().write("{\"message\":\"Limite de requisições excedido. Tente novamente em alguns instantes.\"}");
+        response.getWriter().write(
+                "{\"message\":\"Limite de requisições excedido. Tente novamente em alguns instantes.\"}"
+        );
     }
 
     private String resolveKey(HttpServletRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
+
+        if (authentication != null
+                && authentication.isAuthenticated()
+                && authentication.getPrincipal() != null
+                && !"anonymousUser".equals(authentication.getPrincipal())) {
             return authentication.getName();
         }
+
         String forwarded = request.getHeader("X-Forwarded-For");
         if (forwarded != null && !forwarded.isBlank()) {
             return forwarded.split(",")[0].trim();
         }
+
         return request.getRemoteAddr();
     }
 }
