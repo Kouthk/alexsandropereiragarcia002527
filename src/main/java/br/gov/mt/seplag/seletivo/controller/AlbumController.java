@@ -113,6 +113,24 @@ public class AlbumController {
         return ResponseEntity.ok(mapPage(albuns));
     }
 
+    @Operation(summary = "Listar álbuns por filtros combinados",
+            description = "Filtra por título do álbum, nome do artista e tipo (BANDA ou SOLO).")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Lista paginada de álbuns",
+                    content = @Content(schema = @Schema(implementation = AlbumResponseDTO.class)))
+    })
+    @GetMapping("/filtro")
+    public ResponseEntity<Page<AlbumResponseDTO>> listarPorFiltros(
+            @RequestParam(required = false) String titulo,
+            @RequestParam(required = false) String artista,
+            @RequestParam(required = false) TipoArtistaEnum tipo,
+            @ParameterObject Pageable pageable
+    ) {
+        Page<Album> albuns = albumService.listarPorFiltros(titulo, artista, tipo, pageable);
+        return ResponseEntity.ok(mapPage(albuns));
+    }
+
+
     @Operation(summary = "Criar álbum com upload de capas",
             description = "Cria álbum e envia capas diretamente para o MinIO.")
     @ApiResponses({

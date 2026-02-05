@@ -166,6 +166,20 @@ public class AlbumService implements LayerDefinition {
     }
 
     /**
+     * Lista álbuns por filtros combinados: título do álbum, nome do artista e tipo.
+     */
+    @Transactional(readOnly = true)
+    public Page<Album> listarPorFiltros(String titulo, String artistaNome, TipoArtistaEnum tipo, Pageable pageable) {
+        return albumRepository.findByFiltros(
+                regularizaFiltro(titulo),
+                regularizaFiltro(artistaNome),
+                tipo,
+                pageable
+        );
+    }
+
+
+    /**
      * Atualiza dados básicos do álbum.
      */
     @Transactional
@@ -288,6 +302,14 @@ public class AlbumService implements LayerDefinition {
         }
         vincularArtistas(album, novosArtistas);
     }
+
+    private String regularizaFiltro(String valor) {
+        if (valor == null || valor.isBlank()) {
+            return null;
+        }
+        return valor.trim();
+    }
+
 
     @Override
     public String getClassName() {
