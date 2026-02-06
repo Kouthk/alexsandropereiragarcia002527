@@ -37,11 +37,26 @@ cd alexsandropereiragarcia002527
 ```
 
 ### 2) Limpar o cache/volumes do Docker
-(Recomendado) Limpe o cache/volumes do Docker antes de subir, para evitar conflitos de banco/porta:
+**(Recomendado)** Limpe o cache/volumes do Docker antes de subir, para evitar conflitos de banco/porta.
+**Atenção**: recomenda-se fortemente realizar a limpeza do ambiente Docker antes de executar a aplicação, evitando conflitos com containers, volumes ou redes pré-existentes.
 ```bash
-docker compose down -v --remove-orphans
-docker volume prune -f
-docker builder prune -f
+# Parar todos os containers em execução
+docker stop $(docker ps -q)
+
+# Remover todos os containers
+docker rm $(docker ps -a -q)
+
+# Remover todas as imagens
+docker rmi -f $(docker images -q)
+
+# Remover todos os volumes
+docker volume rm $(docker volume ls -q)
+
+# Remover todas as redes
+docker network rm $(docker network ls -q)
+
+# Limpeza completa do sistema Docker
+docker system prune -a --volumes -f
 ```
 
 ### 3) Subir tudo via Docker Compose (API + DB + MinIO + Nginx)
