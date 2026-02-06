@@ -6,6 +6,9 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?logo=postgresql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
 ![Nginx](https://img.shields.io/badge/Nginx-1.27-009639?logo=nginx&logoColor=white)
+![MinIO](https://img.shields.io/badge/MinIO-latest-C72E49?logo=minio&logoColor=white)
+
+
 
 ## Dados de Inscrição
 - **Nome completo**: Alex Sandro Pereira Garcia
@@ -49,10 +52,10 @@ docker-compose up -d --build
 - Swagger: `http://localhost:8080/swagger-ui.html`
 - MinIO Console: `http://localhost:9001`
 
-- NGINX:
-- API (via Nginx): `http://localhost/`
-- Swagger (via Nginx): `http://localhost/swagger-ui.html`
--  MinIO (via Nginx): `http://localhost/minio`
+- **NGINX**:
+  - API (via Nginx): `http://localhost/`
+  - Swagger (via Nginx): `http://localhost/swagger-ui.html`
+  -  MinIO (via Nginx): `http://localhost/minio`
 
 Se estiver em IDE/Windows, reimporte o projeto Maven para garantir o classpath de testes.
 
