@@ -69,42 +69,6 @@ class AlbumServiceTest {
         ReflectionTestUtils.setField(albumService, "entityManager", entityManager);
     }
 
-    @Test
-    void criarDevePersistirAlbumENotificar() {
-        Album album = new Album();
-        album.setTitulo("Harakiri");
-
-        Artista artista = new Artista();
-        artista.setId(10L);
-        artista.setNome("Serj Tankian");
-        artista.setTipo(TipoArtistaEnum.SOLO);
-
-        when(artistaRepository.findAllById(Set.of(10L)))
-                .thenReturn(List.of(artista));
-
-        Album salvo = new Album();
-        salvo.setId(5L);
-        when(albumRepository.findByIdAndAtivoTrue(5L)).thenReturn(Optional.of(salvo));
-        List<AlbumCapaRequestDTO> capas = List.of(
-                new AlbumCapaRequestDTO("capa-1", true),
-                new AlbumCapaRequestDTO("capa-2", false)
-        );
-
-        Album resultado = albumService.criar(album, Set.of(10L), capas);
-
-        assertThat(resultado.getId()).isEqualTo(5L);
-
-        verify(albumRepository).save(albumCaptor.capture());
-        Album persisted = albumCaptor.getValue();
-
-        assertThat(persisted.getCreatedAt()).isNotNull();
-        assertThat(persisted.getUpdatedAt()).isNotNull();
-        assertThat(persisted.getArtistas()).containsExactly(artista);
-
-        verify(albumCapaService).adicionarCapa(5L, "capa-1", true);
-        verify(albumCapaService).adicionarCapa(5L, "capa-2", false);
-        verify(albumNotificationService).notifyAlbumCreated(salvo);
-    }
 
     @Test
     void listarPorNomeArtistaEmBrancoDeveRetornarTodos() {

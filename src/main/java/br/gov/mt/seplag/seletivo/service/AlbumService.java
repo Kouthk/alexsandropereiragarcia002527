@@ -51,32 +51,6 @@ public class AlbumService implements LayerDefinition {
         this.albumNotificationService = albumNotificationService;
     }
 
-    /**
-     * Cria um álbum e associa aos artistas informados.
-     */
-    @Transactional
-    public Album criar(Album album, Set<Long> artistasIds, List<AlbumCapaRequestDTO> capas) {
-        album.setId(null);
-        album.setCreatedAt(LocalDateTime.now());
-        album.setUpdatedAt(LocalDateTime.now());
-
-        Set<Artista> artistas = buscarArtistasObrigatorios(artistasIds);
-        vincularArtistas(album, artistas);
-
-        Album salvo = albumRepository.save(album);
-        if (capas != null && !capas.isEmpty()) {
-            for (AlbumCapaRequestDTO capa : capas) {
-                albumCapaService.adicionarCapa(
-                        salvo.getId(),
-                        capa.objectKey(),
-                        Boolean.TRUE.equals(capa.principal())
-                );
-            }
-        }
-        Album carregado = carregarAlbumComRelacoes(salvo.getId());
-        albumNotificationService.notifyAlbumCreated(carregado);
-        return carregado;
-    }
 
     /**
      * Cria Album com Capa
