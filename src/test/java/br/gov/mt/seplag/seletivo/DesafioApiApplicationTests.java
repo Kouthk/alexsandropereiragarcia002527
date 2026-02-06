@@ -9,6 +9,7 @@ import br.gov.mt.seplag.seletivo.security.repository.RoleRepository;
 import br.gov.mt.seplag.seletivo.security.repository.TokenRepository;
 import br.gov.mt.seplag.seletivo.security.repository.UserRepository;
 import io.minio.MinioClient;
+import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -16,7 +17,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 @SpringBootTest(properties = {
         "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration,"
                 + "org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration,"
-                + "org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration"
+                + "org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration,"
+                + "org.springframework.boot.actuate.autoconfigure.metrics.SystemMetricsAutoConfiguration,"
+                + "org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration,"
+                + "org.springframework.boot.actuate.autoconfigure.metrics.export.simple.SimpleMetricsExportAutoConfiguration,"
+                + "org.springframework.boot.actuate.autoconfigure.metrics.web.tomcat.TomcatMetricsAutoConfiguration"
 })
 class DesafioApiApplicationTests {
 
@@ -43,6 +48,9 @@ class DesafioApiApplicationTests {
 
     @MockBean
     private MinioClient minioClient;
+
+    @MockBean
+    private EntityManagerFactory entityManagerFactory;
 
     @Test
     void contextLoads() {

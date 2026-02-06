@@ -7,6 +7,8 @@ import br.gov.mt.seplag.seletivo.domain.repository.AlbumRepository;
 import br.gov.mt.seplag.seletivo.domain.repository.ArtistaRepository;
 import br.gov.mt.seplag.seletivo.dto.AlbumCapaRequestDTO;
 import br.gov.mt.seplag.seletivo.exception.ResourceNotFoundException;
+import jakarta.persistence.EntityManager;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -18,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -51,11 +54,20 @@ class AlbumServiceTest {
     @Mock
     private AlbumNotificationService albumNotificationService;
 
+    @Mock
+    private EntityManager entityManager;
+
+
     @InjectMocks
     private AlbumService albumService;
 
     @Captor
     private ArgumentCaptor<Album> albumCaptor;
+
+    @BeforeEach
+    void setUp() {
+        ReflectionTestUtils.setField(albumService, "entityManager", entityManager);
+    }
 
     @Test
     void criarDevePersistirAlbumENotificar() {
@@ -72,8 +84,7 @@ class AlbumServiceTest {
 
         Album salvo = new Album();
         salvo.setId(5L);
-        when(albumRepository.save(any(Album.class))).thenReturn(salvo);
-
+        when(albumRepository.findByIdAndAtivoTrue(5L)).thenReturn(Optional.of(salvo));
         List<AlbumCapaRequestDTO> capas = List.of(
                 new AlbumCapaRequestDTO("capa-1", true),
                 new AlbumCapaRequestDTO("capa-2", false)
@@ -132,8 +143,7 @@ class AlbumServiceTest {
         artistaAtual.setAlbuns(new HashSet<>(Set.of(existente)));
         existente.setArtistas(new HashSet<>(Set.of(artistaAtual)));
 
-        when(albumRepository.findById(2L)).thenReturn(Optional.of(existente));
-
+        when(albumRepository.findByIdAndAtivoTrue(2L)).thenReturn(Optional.of(existente));
         Artista novoArtista = new Artista();
         novoArtista.setId(3L);
         when(artistaRepository.findAllById(Set.of(3L))).thenReturn(List.of(novoArtista));
