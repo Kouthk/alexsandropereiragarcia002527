@@ -37,8 +37,8 @@ cd alexsandropereiragarcia002527
 ```
 
 ### 2) Limpar o cache/volumes do Docker
-**(Recomendado)** Limpe o cache/volumes do Docker antes de subir, para evitar conflitos de banco/porta.
-**Atenção**: recomenda-se fortemente realizar a limpeza do ambiente Docker antes de executar a aplicação, evitando conflitos com containers, volumes ou redes pré-existentes.
+**(Recomendado)** Limpe o cache/volumes do Docker antes de subir, para evitar conflitos de banco/porta. 
+Recomenda-se fortemente realizar a limpeza do ambiente Docker antes de executar a aplicação.
 ```bash
 # Parar todos os containers em execução
 docker stop $(docker ps -q)
