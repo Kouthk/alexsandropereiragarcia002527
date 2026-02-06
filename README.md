@@ -1,9 +1,14 @@
-# SELETIVO SEPLAG/MT - 2026 -  (Back End Java)
+# Processo Seletivo Simplificado Conjunto nº 001/2026 – SEPLAG/MT
+### Projeto Prático – Back End Java (Engenheiro da Computação – Sênior)
+
+![Java](https://img.shields.io/badge/Java-17%2B-007396?logo=java&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3-6DB33F?logo=springboot&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?logo=postgresql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
+![Nginx](https://img.shields.io/badge/Nginx-1.27-009639?logo=nginx&logoColor=white)
 
 ## Dados de Inscrição
 - **Nome completo**: Alex Sandro Pereira Garcia
-- **CPF**: 00252745116
-- **E-mail**: aalex.spg@gmail.com
 - **Vaga**: Analista de TI – Engenheiro da Computação (Sênior)
 - **Inscrição**: 16480
 
@@ -59,14 +64,12 @@ Se estiver em IDE/Windows, reimporte o projeto Maven para garantir o classpath d
   - `POST /api/v1/auth/refresh`
   - `POST /api/v1/auth/logout`
   
-- **Usuário admin (carga inicial)**:
-  - **username**: `admin`
-  - **password**: `admin`
+## Credenciais padrão
 
-## MinIO (credenciais)
-- **Console**: `http://localhost:9001`
-- **Usuário**: `minioadmin`
-- **Senha**: `minioadmin`
+| Serviço | Usuário | Senha | Observação |
+| --- | --- | --- | --- |
+| Admin (carga inicial) | `admin` | `admin` | Login para autenticação na API |
+| MinIO | `minioadmin` | `minioadmin` | Console: `http://localhost:9001` |
 
 ## Como testar no Swagger
 1. Acesse `http://localhost:8080/swagger-ui.html`.
